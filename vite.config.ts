@@ -18,4 +18,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/setupTests.ts",
   },
+  // build: {
+  //   target: 'esnext' //browsers can handle the latest ES features
+  // }
 });
