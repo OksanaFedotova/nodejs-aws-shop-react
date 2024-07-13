@@ -13,8 +13,8 @@ export default function PageProductImport() {
         <CSVFileImport
           url={`${API_PATHS.import}/import`}
           title="Import Products CSV"
-          handleUpload={() =>
-            toast("File is uploaded!", {
+          handleUpload={(text) =>
+            toast(text, {
               position: "top-right",
               autoClose: 2000,
               hideProgressBar: false,

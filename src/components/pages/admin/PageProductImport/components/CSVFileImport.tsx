@@ -1,14 +1,16 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 type CSVFileImportProps = {
   url: string;
   title: string;
-  handleUpload: () => void;
+  handleUpload: (arg: string) => void;
 };
-
+interface ErrorResponse {
+  message: string;
+}
 export default function CSVFileImport({
   url,
   title,
@@ -29,28 +31,64 @@ export default function CSVFileImport({
   };
 
   const uploadFile = async () => {
-    //console.log("uploadFile to", url);
+    const authorizationToken = localStorage.getItem("authorization_token");
 
-    // Get the presigned URL
-    if (file) {
+    if (!authorizationToken) {
+      handleUpload("Authorization token not found");
+      return;
+    }
+
+    if (!file) {
+      handleUpload("No file selected");
+      return;
+    }
+
+    try {
+      // Step 1: Perform GET request to retrieve presigned URL
       const response = await axios({
         method: "GET",
         url,
         params: {
           name: encodeURIComponent(file.name),
         },
+        headers: {
+          Authorization: `Basic ${authorizationToken}`,
+        },
       });
-      //console.log("File to upload: ", file.name);
-      //console.log("Uploading to: ", response.data.url);
+
+      // Step 2: Use presigned URL to upload file
       const result = await fetch(response.data.url, {
         method: "PUT",
         body: file,
       });
-      if (result.ok) handleUpload();
+
+      // Check if upload was successful
+      if (result.ok) {
+        handleUpload("File is uploaded!");
+      } else {
+        console.log("Upload error: ", result.status);
+        handleUpload(`Error during file upload: ${result.status}`);
+      }
+
       console.log("Result: ", result);
       setFile("");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<ErrorResponse>;
+        const status = error.response?.status;
+        const message = axiosError.response?.data.message;
+        if (status === 401 || status === 403) {
+          handleUpload(`Authorization error: ${message}`);
+        } else {
+          handleUpload(`HTTP error: ${status}`);
+        }
+      } else {
+        console.error("Unknown error: ", error);
+        handleUpload("Error during file upload");
+      }
     }
   };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
