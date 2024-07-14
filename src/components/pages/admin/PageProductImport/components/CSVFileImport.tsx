@@ -1,7 +1,7 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 
 type CSVFileImportProps = {
   url: string;
@@ -29,14 +29,11 @@ export default function CSVFileImport({
   const removeFile = () => {
     setFile(undefined);
   };
-
   const uploadFile = async () => {
     const authorizationToken = localStorage.getItem("authorization_token");
-
-    if (!authorizationToken) {
-      handleUpload("Authorization token not found");
-      return;
-    }
+    const headers: AxiosRequestHeaders = authorizationToken
+      ? { Authorization: `Basic ${authorizationToken}` }
+      : {};
 
     if (!file) {
       handleUpload("No file selected");
@@ -51,9 +48,7 @@ export default function CSVFileImport({
         params: {
           name: encodeURIComponent(file.name),
         },
-        headers: {
-          Authorization: `Basic ${authorizationToken}`,
-        },
+        headers,
       });
 
       // Step 2: Use presigned URL to upload file
@@ -69,16 +64,15 @@ export default function CSVFileImport({
         console.log("Upload error: ", result.status);
         handleUpload(`Error during file upload: ${result.status}`);
       }
-
       console.log("Result: ", result);
       setFile("");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<ErrorResponse>;
         const status = error.response?.status;
-        const message = axiosError.response?.data.message;
         if (status === 401 || status === 403) {
-          handleUpload(`Authorization error: ${message}`);
+          const message = axiosError.response?.data?.message;
+          handleUpload(`Authorization error: ${message} ${status}`);
         } else {
           handleUpload(`HTTP error: ${status}`);
         }
@@ -88,7 +82,6 @@ export default function CSVFileImport({
       }
     }
   };
-
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
