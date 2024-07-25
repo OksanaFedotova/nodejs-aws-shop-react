@@ -9,14 +9,11 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { theme } from "~/theme";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { refetchOnWindowFocus: false, retry: false, staleTime: Infinity },
   },
 });
-
-
 
 const container = document.getElementById("app");
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

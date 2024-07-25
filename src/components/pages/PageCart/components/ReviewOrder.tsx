@@ -6,7 +6,7 @@ import { CartItem } from "~/models/CartItem";
 
 type ReviewOrderProps = {
   address: FormikValues;
-  items: CartItem[];
+  items: CartItem[] | [];
 };
 
 export default function ReviewOrder({ address, items }: ReviewOrderProps) {
