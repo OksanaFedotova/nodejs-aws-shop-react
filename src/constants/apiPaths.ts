@@ -3,9 +3,9 @@ const API_PATHS = {
   order: "https://qyflqg7cf4.execute-api.eu-west-1.amazonaws.com/prod",
   import: "https://lwn8xbwzfl.execute-api.eu-west-1.amazonaws.com/prod",
   bff: "https://qyflqg7cf4.execute-api.eu-west-1.amazonaws.com/prod",
-  cart: "https://x1b8pesw2a.execute-api.eu-west-1.amazonaws.com/prod/api",
-  user: "https://x1b8pesw2a.execute-api.eu-west-1.amazonaws.com/prod/api/users",
-  auth: "https://x1b8pesw2a.execute-api.eu-west-1.amazonaws.com/prod/api/auth",
+  cart: "http://oksanafedotova-cart-api-prod.eu-west-1.elasticbeanstalk.com/api",
+  user: "http://oksanafedotova-cart-api-prod.eu-west-1.elasticbeanstalk.com/api/users",
+  auth: "http://oksanafedotova-cart-api-prod.eu-west-1.elasticbeanstalk.com/api/auth",
 };
 
 export default API_PATHS;
