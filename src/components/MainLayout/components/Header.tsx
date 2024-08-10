@@ -33,7 +33,7 @@ export default function Header() {
             underline="none"
             to="/"
           >
-            My Store!
+            Guided tours of world-renowned landmarks
           </Link>
         </Typography>
 

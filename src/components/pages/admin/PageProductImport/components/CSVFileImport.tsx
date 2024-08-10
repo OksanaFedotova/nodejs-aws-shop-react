@@ -1,14 +1,22 @@
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import axios, { AxiosError, AxiosRequestHeaders } from "axios";
 
 type CSVFileImportProps = {
   url: string;
   title: string;
+  handleUpload: (arg: string) => void;
 };
-
-export default function CSVFileImport({ url, title }: CSVFileImportProps) {
-  const [file, setFile] = React.useState<File>();
+interface ErrorResponse {
+  message: string;
+}
+export default function CSVFileImport({
+  url,
+  title,
+  handleUpload,
+}: CSVFileImportProps) {
+  const [file, setFile] = React.useState<File | "">();
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -21,26 +29,58 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
   const removeFile = () => {
     setFile(undefined);
   };
-
   const uploadFile = async () => {
-    console.log("uploadFile to", url);
+    const authorizationToken = localStorage.getItem("authorization_token");
+    const headers: AxiosRequestHeaders = authorizationToken
+      ? { Authorization: `Basic ${authorizationToken}` }
+      : {};
 
-    // Get the presigned URL
-    // const response = await axios({
-    //   method: "GET",
-    //   url,
-    //   params: {
-    //     name: encodeURIComponent(file.name),
-    //   },
-    // });
-    // console.log("File to upload: ", file.name);
-    // console.log("Uploading to: ", response.data);
-    // const result = await fetch(response.data, {
-    //   method: "PUT",
-    //   body: file,
-    // });
-    // console.log("Result: ", result);
-    // setFile("");
+    if (!file) {
+      handleUpload("No file selected");
+      return;
+    }
+
+    try {
+      // Step 1: Perform GET request to retrieve presigned URL
+      const response = await axios({
+        method: "GET",
+        url,
+        params: {
+          name: encodeURIComponent(file.name),
+        },
+        headers,
+      });
+
+      // Step 2: Use presigned URL to upload file
+      const result = await fetch(response.data.url, {
+        method: "PUT",
+        body: file,
+      });
+
+      // Check if upload was successful
+      if (result.ok) {
+        handleUpload("File is uploaded!");
+      } else {
+        console.log("Upload error: ", result.status);
+        handleUpload(`Error during file upload: ${result.status}`);
+      }
+      console.log("Result: ", result);
+      setFile("");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<ErrorResponse>;
+        const status = error.response?.status;
+        if (status === 401 || status === 403) {
+          const message = axiosError.response?.data?.message;
+          handleUpload(`Authorization error: ${message} ${status}`);
+        } else {
+          handleUpload(`HTTP error: ${status}`);
+        }
+      } else {
+        console.error("Unknown error: ", error);
+        handleUpload("Error during file upload");
+      }
+    }
   };
   return (
     <Box>
