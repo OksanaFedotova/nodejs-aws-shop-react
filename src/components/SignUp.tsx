@@ -32,17 +32,16 @@ export default function SignUp() {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.post(`${API_PATHS.auth}/login`, {
+      const res = await axios.post(`${API_PATHS.bff}/auth/login`, {
         username,
         password,
       });
       const token = res.data.data.access_token;
       localStorage.setItem("access_token", token);
-     // handleToken(token);
       toast("You have logged in");
       navigate("/cart");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setError("Login failed. Please check your credentials and try again.");
     } finally {
       setLoading(false);

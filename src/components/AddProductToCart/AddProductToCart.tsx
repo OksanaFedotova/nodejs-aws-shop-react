@@ -5,6 +5,8 @@ import Add from "@mui/icons-material/Add";
 import Remove from "@mui/icons-material/Remove";
 import IconButton from "@mui/material/IconButton";
 import { useCart, useInvalidateCart, useUpsertCart } from "~/queries/cart";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 type AddProductToCartProps = {
   product: Product;
@@ -24,6 +26,14 @@ export default function AddProductToCart({ product }: AddProductToCartProps) {
           onSuccess: () => {
             invalidateCart();
           },
+          onError: (error) => {
+            if (error instanceof AxiosError && error.response) {
+              toast.error(error.response.data.message);
+            } else {
+              toast.error("Error adding product to cart");
+            }
+            console.error("Error adding product to cart:", error);
+          },
         }
       );
     }
@@ -33,11 +43,20 @@ export default function AddProductToCart({ product }: AddProductToCartProps) {
     if (cartItem && product.id) {
       upsertCart(
         { items: [{ product_id: product.id, count: -1 }] },
-        { onSuccess: invalidateCart }
+        {
+          onSuccess: invalidateCart,
+          onError: (error) => {
+            if (error instanceof AxiosError && error.response) {
+              toast.error(error.response.data.message);
+            } else {
+              toast.error("Error removing product from cart");
+            }
+            console.error("Error removing product from cart:", error);
+          },
+        }
       );
     }
   };
-
   return cartItem ? (
     <>
       <IconButton disabled={isFetching} onClick={removeProduct} size="large">

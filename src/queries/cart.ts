@@ -11,14 +11,11 @@ import {
 
 export function useCart() {
   return useQuery<CartData, AxiosError>("cart", async () => {
-    const res = await axios.get<CartResponse>(
-      `${API_PATHS.cart}/profile/cart`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      }
-    );
+    const res = await axios.get<CartResponse>(`${API_PATHS.bff}/profile/cart`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    });
 
     const dataRes = res.data;
     const data = dataRes.data as unknown as CartDataResponse;
@@ -40,7 +37,7 @@ export function useInvalidateCart() {
 
 export function useUpsertCart() {
   return useMutation((values: CartItemRequest) =>
-    axios.put<CartItemRequest>(`${API_PATHS.cart}/profile/cart`, values, {
+    axios.put<CartItemRequest>(`${API_PATHS.bff}/profile/cart`, values, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
