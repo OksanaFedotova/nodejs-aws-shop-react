@@ -2,23 +2,33 @@ import axios, { AxiosError } from "axios";
 import React from "react";
 import { useQuery, useQueryClient, useMutation } from "react-query";
 import API_PATHS from "~/constants/apiPaths";
-import { CartItem } from "~/models/CartItem";
+import {
+  CartData,
+  CartDataResponse,
+  CartItemRequest,
+  CartResponse,
+} from "~/models/CartItem";
 
 export function useCart() {
-  return useQuery<CartItem[], AxiosError>("cart", async () => {
-    const res = await axios.get<CartItem[]>(`${API_PATHS.cart}/profile/cart`, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
-      },
-    });
-    return res.data;
+  return useQuery<CartData, AxiosError>("cart", async () => {
+    const res = await axios.get<CartResponse>(
+      `${API_PATHS.cart}/profile/cart`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }
+    );
+
+    const dataRes = res.data;
+    const data = dataRes.data as unknown as CartDataResponse;
+    return data.cart;
   });
 }
-
-export function useCartData() {
-  const queryClient = useQueryClient();
-  return queryClient.getQueryData<CartItem[]>("cart");
-}
+// export function useCartData() {
+//   const queryClient = useQueryClient();
+//   return queryClient.getQueryData<CartItem[]>("cart");
+// }
 
 export function useInvalidateCart() {
   const queryClient = useQueryClient();
@@ -29,10 +39,10 @@ export function useInvalidateCart() {
 }
 
 export function useUpsertCart() {
-  return useMutation((values: CartItem) =>
-    axios.put<CartItem[]>(`${API_PATHS.cart}/profile/cart`, values, {
+  return useMutation((values: CartItemRequest) =>
+    axios.put<CartItemRequest>(`${API_PATHS.cart}/profile/cart`, values, {
       headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })
   );
