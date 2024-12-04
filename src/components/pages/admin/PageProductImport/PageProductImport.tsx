@@ -4,6 +4,7 @@ import CSVFileImport from "~/components/pages/admin/PageProductImport/components
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function PageProductImport() {
   return (
@@ -12,7 +13,20 @@ export default function PageProductImport() {
         <CSVFileImport
           url={`${API_PATHS.import}/import`}
           title="Import Products CSV"
+          handleUpload={(text) =>
+            toast(text, {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            })
+          }
         />
+        <ToastContainer />
         <Button
           size="small"
           color="primary"
